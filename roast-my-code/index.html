@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Roast My Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1b1815;
+    --panel: #241f1a;
+    --panel-border: #352d25;
+    --text: #f2ede3;
+    --text-dim: #a99d8d;
+
+    --ember: #ff5d1f;
+    --ember-dim: #c9a56a;
+    --ember-glow: rgba(255, 93, 31, 0.18);
+
+    --cyan: #5ee6c8;
+    --cyan-dim: #8a9199;
+    --cyan-glow: rgba(94, 230, 200, 0.16);
+
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(255,93,31,0.10), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 48px 20px 80px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ember-dim);
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 42px;
+    line-height: 1.05;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+
+  h1 span {
+    color: var(--ember);
+  }
+
+  .sub {
+    color: var(--text-dim);
+    font-size: 15px;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .panel-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-label .copy-btn {
+    margin-left: auto;
+  }
+
+  .copy-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: transparent;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+
+  .copy-btn:hover {
+    color: var(--text);
+    border-color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .copy-btn.copied {
+    color: var(--cyan);
+    border-color: var(--cyan);
+  }
+
+  .copy-btn:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+  }
+
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--ember);
+    box-shadow: 0 0 8px var(--ember);
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 220px;
+    background: #14110e;
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.6;
+    padding: 16px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus {
+    border-color: var(--ember-dim);
+  }
+
+  textarea::placeholder {
+    color: #5a5148;
+  }
+
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    gap: 12px;
+  }
+
+  .hint {
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+
+  button.roast-btn {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: #1b1815;
+    background: linear-gradient(135deg, #ff7a3d, var(--ember));
+    border: none;
+    border-radius: 8px;
+    padding: 13px 26px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 20px var(--ember-glow);
+    white-space: nowrap;
+  }
+
+  button.roast-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 26px var(--ember-glow);
+  }
+
+  button.roast-btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  button.roast-btn:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  button.roast-btn:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+  }
+
+  .integrity-bar {
+    display: flex;
+    gap: 18px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .integrity-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    transition: color 0.2s;
+  }
+
+  .integrity-item strong {
+    color: inherit;
+    font-weight: 600;
+  }
+
+  .integrity-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cyan-dim);
+    flex-shrink: 0;
+  }
+
+  .integrity-item.flagged {
+    color: #ff9d5c;
+  }
+
+  .integrity-item.flagged .integrity-dot {
+    background: #ff5d1f;
+    box-shadow: 0 0 6px rgba(255, 93, 31, 0.6);
+  }
+
+  .paste-warning {
+    display: none;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #ff9d5c;
+    background: rgba(255, 93, 31, 0.08);
+    border: 1px solid rgba(255, 93, 31, 0.3);
+    border-radius: 8px;
+    padding: 10px 12px;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .paste-warning.visible { display: block; }
+
+  .output {
+    display: none;
+  }
+
+  .output.visible {
+    display: block;
+    animation: fadeUp 0.45s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .roast-panel {
+    border-color: #4a3323;
+    background: linear-gradient(180deg, #241f1a, #221a15);
+  }
+
+  .roast-panel .panel-label { color: var(--ember-dim); }
+  .roast-panel .dot { background: var(--ember); box-shadow: 0 0 8px var(--ember); }
+
+  .roast-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14.5px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    color: #ffe4d1;
+  }
+
+  .burn-meter {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed #4a3323;
+  }
+
+  .burn-meter-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .burn-meter-track {
+    height: 10px;
+    background: #14110e;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--panel-border);
+  }
+
+  .burn-meter-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #ffb85c, var(--ember), #ff2e2e);
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .flip-divider {
+    text-align: center;
+    margin: 26px 0;
+    position: relative;
+    height: 1px;
+  }
+
+  .flip-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--panel-border), transparent);
+  }
+
+  .flip-divider span {
+    position: relative;
+    background: var(--bg);
+    padding: 0 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .real-panel {
+    border-color: #1e3d38;
+    background: linear-gradient(180deg, #17211f, #151d1b);
+  }
+
+  .real-panel .panel-label { color: var(--cyan); }
+  .real-panel .dot { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+
+  .real-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    color: #d9f5ee;
+  }
+
+  .loading {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .loading.visible { display: flex; }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--panel-border);
+    border-top-color: var(--ember);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error {
+    display: none;
+    color: #ff9d9d;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+
+  .error.visible { display: block; }
+
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 12px;
+    color: #5a5148;
+    font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">// code review, unfiltered</div>
+      <h1>Roast My <span>Code</span></h1>
+      <p class="sub">Paste a snippet. Get roasted first, then get the real feedback — no sugar-coating either way.</p>
+    </header>
+
+    <div class="panel">
+      <div class="panel-label"><span class="dot"></span> your code</div>
+      <textarea id="codeInput" placeholder="// paste literally anything. we've seen worse."></textarea>
+      <div class="integrity-bar" id="integrityBar">
+        <div class="integrity-item" id="pasteItem">
+          <span class="integrity-dot"></span>
+          <span>Paste attempts: <strong id="pasteCount">0</strong></span>
+        </div>
+        <div class="integrity-item" id="tabItem">
+          <span class="integrity-dot"></span>
+          <span>Tab switches: <strong id="tabCount">0</strong></span>
+        </div>
+        <div class="integrity-item" id="burstItem">
+          <span class="integrity-dot"></span>
+          <span>Suspicious bursts: <strong id="burstCount">0</strong></span>
+        </div>
+      </div>
+      <div class="paste-warning" id="pasteWarning">Pasting or injected text isn't allowed here — the roast should reflect code you actually typed.</div>
+      <div class="controls">
+        <span class="hint" id="charHint">Type your own code — pasting is blocked.</span>
+        <button class="roast-btn" id="roastBtn">Roast Me →</button>
+      </div>
+      <div class="loading" id="loading">
+        <span class="spinner"></span> firing up the grill…
+      </div>
+      <div class="error" id="errorMsg"></div>
+    </div>
+
+    <div class="output" id="output">
+      <div class="panel roast-panel">
+        <div class="panel-label">
+        <span class="dot"></span> the roast
+        <button class="copy-btn" id="copyRoast" aria-label="Copy roast text">copy</button>
+      </div>
+        <div class="roast-text" id="roastText"></div>
+        <div class="burn-meter">
+          <div class="burn-meter-label">
+            <span>Burn Level</span>
+            <span id="burnValue">0/10</span>
+          </div>
+          <div class="burn-meter-track">
+            <div class="burn-meter-fill" id="burnFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-divider"><span>◆ now for real ◆</span></div>
+
+      <div class="panel real-panel">
+        <div class="panel-label">
+        <span class="dot"></span> the real talk
+        <button class="copy-btn" id="copyReal" aria-label="Copy feedback text">copy</button>
+      </div>
+        <div class="real-text" id="realText"></div>
+      </div>
+    </div>
+
+    <footer>built with claude · no code is stored anywhere</footer>
+  </div>
+
+<script>
+const codeInput = document.getElementById('codeInput');
+const roastBtn = document.getElementById('roastBtn');
+const loading = document.getElementById('loading');
+const errorMsg = document.getElementById('errorMsg');
+const output = document.getElementById('output');
+const roastText = document.getElementById('roastText');
+const realText = document.getElementById('realText');
+const burnFill = document.getElementById('burnFill');
+const burnValue = document.getElementById('burnValue');
+const pasteCountEl = document.getElementById('pasteCount');
+const tabCountEl = document.getElementById('tabCount');
+const pasteItem = document.getElementById('pasteItem');
+const tabItem = document.getElementById('tabItem');
+const pasteWarning = document.getElementById('pasteWarning');
+const burstCountEl = document.getElementById('burstCount');
+const burstItem = document.getElementById('burstItem');
+
+let burstFlags = 0;
+let prevLength = 0;
+let lastInputTime = performance.now();
+
+const BURST_MIN_CHARS = 6;
+const BURST_MAX_MS = 40;
+
+function checkBurst(newLength) {
+  const now = performance.now();
+  const elapsed = now - lastInputTime;
+  const added = newLength - prevLength;
+
+  if (added >= BURST_MIN_CHARS && elapsed <= BURST_MAX_MS) {
+    burstFlags += 1;
+    burstCountEl.textContent = burstFlags;
+    burstItem.classList.add('flagged');
+    showPasteWarning();
+  }
+
+  lastInputTime = now;
+  prevLength = newLength;
+}
+
+let pasteAttempts = 0;
+let tabSwitches = 0;
+let hasStartedTyping = false;
+let warningTimer = null;
+
+function showPasteWarning() {
+  pasteWarning.classList.add('visible');
+  clearTimeout(warningTimer);
+  warningTimer = setTimeout(() => pasteWarning.classList.remove('visible'), 3500);
+}
+
+codeInput.addEventListener('paste', (e) => {
+  e.preventDefault();
+  pasteAttempts += 1;
+  pasteCountEl.textContent = pasteAttempts;
+  pasteItem.classList.add('flagged');
+  showPasteWarning();
+});
+
+codeInput.addEventListener('drop', (e) => {
+  e.preventDefault();
+  pasteAttempts += 1;
+  pasteCountEl.textContent = pasteAttempts;
+  pasteItem.classList.add('flagged');
+  showPasteWarning();
+});
+
+codeInput.addEventListener('input', () => {
+  hasStartedTyping = codeInput.value.length > 0;
+  checkBurst(codeInput.value.length);
+});
+
+function registerTabSwitch() {
+  if (!hasStartedTyping) return;
+  tabSwitches += 1;
+  tabCountEl.textContent = tabSwitches;
+  tabItem.classList.add('flagged');
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) registerTabSwitch();
+});
+
+window.addEventListener('blur', registerTabSwitch);
+
+function getIntegrityNote() {
+  if (pasteAttempts === 0 && tabSwitches === 0 && burstFlags === 0) return '';
+  const parts = [];
+  if (pasteAttempts > 0) parts.push(`${pasteAttempts} blocked paste attempt${pasteAttempts > 1 ? 's' : ''}`);
+  if (tabSwitches > 0) parts.push(`${tabSwitches} tab/window switch${tabSwitches > 1 ? 'es' : ''}`);
+  if (burstFlags > 0) parts.push(`${burstFlags} suspicious burst-input event${burstFlags > 1 ? 's' : ''} (text appeared faster than humanly typeable)`);
+  return ` (Note: ${parts.join(', ')} were detected while writing this — feel free to mention that in the roast if relevant.)`;
+}
+
+async function roastCode() {
+  const code = codeInput.value.trim();
+  if (!code) {
+    codeInput.focus();
+    return;
+  }
+
+  roastBtn.disabled = true;
+  loading.classList.add('visible');
+  errorMsg.classList.remove('visible');
+  output.classList.remove('visible');
+  burnFill.style.width = '0%';
+  burnValue.textContent = '0/10';
+
+  const systemPrompt = `You are a comedy code reviewer. Given a code snippet, respond ONLY with a JSON object, no markdown fences, no preamble, in exactly this shape:
+{"roast": "a savage, funny, specific roast of this exact code (3-6 sentences, reference actual variable/function names or patterns from the snippet, keep it clever not generic, keep it clean/non-offensive)", "burnLevel": <integer 1-10 for how bad the code actually is>, "realFeedback": "genuinely useful, specific, constructive feedback on how to actually fix/improve this code (3-6 sentences, no jokes here, be concrete)"}`;
+
+  try {
+    const response = await fetch("/api/roast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: code + getIntegrityNote(), systemPrompt })
+    });
+
+    if (!response.ok) throw new Error(`Server responded ${response.status}`);
+    const data = await response.json();
+    const textBlock = data.content.find(b => b.type === "text");
+    if (!textBlock) throw new Error("No response from model");
+
+    const cleaned = textBlock.text.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+
+    roastText.textContent = parsed.roast;
+    realText.textContent = parsed.realFeedback;
+
+    const level = Math.max(1, Math.min(10, parseInt(parsed.burnLevel, 10) || 5));
+    burnValue.textContent = `${level}/10`;
+
+    output.classList.add('visible');
+    requestAnimationFrame(() => {
+      setTimeout(() => { burnFill.style.width = `${level * 10}%`; }, 150);
+    });
+  } catch (err) {
+    console.error(err);
+    errorMsg.textContent = "Couldn't finish that roast — try again in a moment.";
+    errorMsg.classList.add('visible');
+  } finally {
+    roastBtn.disabled = false;
+    loading.classList.remove('visible');
+  }
+}
+
+roastBtn.addEventListener('click', roastCode);
+codeInput.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') roastCode();
+});
+
+function setupCopyButton(buttonEl, getText) {
+  buttonEl.addEventListener('click', async () => {
+    const text = getText();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    const original = buttonEl.textContent;
+    buttonEl.textContent = 'copied';
+    buttonEl.classList.add('copied');
+    setTimeout(() => {
+      buttonEl.textContent = original;
+      buttonEl.classList.remove('copied');
+    }, 1500);
+  });
+}
+
+setupCopyButton(document.getElementById('copyRoast'), () => roastText.textContent);
+setupCopyButton(document.getElementById('copyReal'), () => realText.textContent);
+</script>
+</body>
+</html>
